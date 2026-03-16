@@ -1,15 +1,24 @@
-# Image Optimization to AVIF
 
-This script optimizes images locally before uploading them to a server.  
-It removes metadata and converts images to the **AVIF** format, which typically provides significantly better compression than JPG, PNG, or WebP while maintaining high visual quality.
+# Image Optimizer (AVIF + WebP)
+
+A fast local image optimization pipeline for developers.  
+This script removes metadata, compresses images, and generates **AVIF** and **WebP** versions before uploading them to a server.
+
+It is designed to be simple, fast, and suitable for static sites, CMS uploads, or deployment pipelines.
+
+---
 
 ## Features
 
 - Removes EXIF and metadata
-- Converts JPG / JPEG / PNG to AVIF
+- Converts JPG / JPEG / PNG images
+- Generates **AVIF** and **WebP**
 - Keeps original images untouched
-- Outputs optimized files into a separate directory
-- Suitable for preparing images before deployment
+- Preserves folder structure
+- Uses **all CPU cores** for faster processing
+- Skips already converted images
+
+---
 
 ## Requirements
 
@@ -18,70 +27,125 @@ Install the required tools:
 ```bash
 brew install imagemagick
 brew install libavif
+brew install webp
 ```
 
+Verify installation:
 
-## Verify installation:
-```
+```bash
 magick -version
 avifenc --version
-```
-## Script
-optimize-images-avif.sh
-
-```
-#!/bin/bash
-
-INPUT_DIR="${1:-.}"
-OUTPUT_DIR="${2:-avif}"
-QUALITY=45
-
-mkdir -p "$OUTPUT_DIR"
-
-find "$INPUT_DIR" -type f $begin:math:text$ \-iname \"\*\.jpg\" \-o \-iname \"\*\.jpeg\" \-o \-iname \"\*\.png\" $end:math:text$ | while read img
-do
-filename=$(basename "$img")
-name="${filename%.*}"
-
-tmp=$(mktemp /tmp/imgXXXX.png)
-
-magick "$img" -strip -interlace Plane "$tmp"
-
-avifenc --min 30 --max $QUALITY --speed 4 "$tmp" "$OUTPUT_DIR/$name.avif"
-
-rm "$tmp"
-done
+cwebp -version
 ```
 
-## Make Script Executable
+---
 
-chmod +x optimize-images-avif.sh
+## Installation
+
+1. Download the repository or unzip the package.
+2. Make the script executable:
+
+```bash
+chmod +x optimize-images.sh
+```
+
+---
 
 ## Usage
-Run in the current folder:
-``
-./optimize-images-avif.sh
-``
+
+Run inside a folder with images:
+
+```bash
+./optimize-images.sh
+```
+
 Specify input and output directories:
-```
-./optimize-images-avif.sh ./images ./images-avif
+
+```bash
+./optimize-images.sh ./images ./images-optimized
 ```
 
-## Example Structure
-Before:
+---
+
+## Supported Input Formats
+
+- JPG
+- JPEG
+- PNG
+
+---
+
+## Output Structure
+
+Example:
+
 ```
 images/
-  photo1.jpg
-  photo2.png
-```
-After:
-```
-images/
-  photo1.jpg
-  photo2.png
+   hero.jpg
+   blog/post1.png
 
-images-avif/
-  photo1.avif
-  photo2.avif
+images-optimized/
+   avif/
+      hero.avif
+      blog/post1.avif
+
+   webp/
+      hero.webp
+      blog/post1.webp
 ```
 
+---
+
+## Compression Settings
+
+### AVIF
+
+```
+min 18
+max 28
+speed 3
+```
+
+Produces **very high visual quality** with strong compression.
+
+### WebP
+
+```
+quality 82
+method 6
+autofilter enabled
+```
+
+Used as fallback for browsers without AVIF support.
+
+---
+
+## Typical Results
+
+| Format | Size |
+|------|------|
+Original JPG | 1.2 MB |
+WebP | ~300 KB |
+AVIF | ~200 KB |
+
+AVIF usually compresses **25–40% smaller than WebP** while maintaining similar visual quality.
+
+---
+
+## Recommended HTML Usage
+
+```
+<picture>
+  <source srcset="image.avif" type="image/avif">
+  <source srcset="image.webp" type="image/webp">
+  <img src="image.jpg" alt="">
+</picture>
+```
+
+---
+
+## Notes
+
+- Original images are never modified.
+- Output images are stored in a separate folder.
+- Designed for pre-deployment optimization workflows.
