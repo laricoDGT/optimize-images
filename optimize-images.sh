@@ -50,5 +50,4 @@ rm "$tmp"
 export INPUT_DIR OUTPUT_DIR AVIF_MIN AVIF_MAX AVIF_SPEED WEBP_QUALITY
 export -f process_image
 
-find "$INPUT_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | \
-xargs -P "$CPU" -I {} bash -c 'process_image "$@"' _ {}
+find "$INPUT_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | xargs -P "$CPU" -I {} bash -c 'process_image "$@"' _ {}
