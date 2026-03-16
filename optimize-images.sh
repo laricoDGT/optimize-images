@@ -1,8 +1,8 @@
 #!/bin/bash
 
 INPUT_DIR="${1:-.}"
-OUTPUT_DIR="${2:-webp}"
-QUALITY=82
+OUTPUT_DIR="${2:-avif}"
+QUALITY=45
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -13,9 +13,9 @@ name="${filename%.*}"
 
 tmp=$(mktemp /tmp/imgXXXX.png)
 
-magick "$img" -strip -interlace Plane -quality 90 "$tmp"
+magick "$img" -strip -interlace Plane "$tmp"
 
-cwebp -q $QUALITY -m 6 -mt -af "$tmp" -o "$OUTPUT_DIR/$name.webp"
+avifenc --min 30 --max $QUALITY --speed 4 "$tmp" "$OUTPUT_DIR/$name.avif"
 
 rm "$tmp"
 done
